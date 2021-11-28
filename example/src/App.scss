@@ -1,0 +1,46 @@
+body {
+  background-color: #F2F6FC;
+}
+
+.arrow {
+  width: 1rem;
+  height: 1rem;
+  border-top: 0.28rem solid #C0C4CC;
+  border-left: 0.28rem solid #C0C4CC;
+  transform: rotate(135deg);
+  border-radius: 0.3rem;
+  margin-right: 1.2rem;
+  &.active {
+    transform: rotate(225deg);
+  }
+}
+
+.App {
+  margin: 10rem auto;
+  width: 37.5rem;
+  padding: 3.2rem 1.6rem;
+  background-color: #FFF;
+  border-radius: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.demo-row {
+  border-top: 1px solid #DCDFE6;
+  &:last-child {
+    border-bottom: 1px solid #DCDFE6;
+  }
+  .row-header {
+    height: 4.8rem;
+    display: flex;
+    align-items: center;
+    color: #303133;
+    font-size: 2.2rem;
+    font-weight: bold;
+  }
+  .row-body {
+    border-top: 1px solid #EBEEF5;
+    padding: 2.4rem 1.2rem;
+  }
+}

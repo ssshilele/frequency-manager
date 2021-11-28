@@ -1,0 +1,31 @@
+.main-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.box {
+  width: 10rem;
+  height: 10rem;
+  border-radius: 0.8rem;
+  background-color: #E4E7ED;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.6rem;
+  color: #303133;
+  position: relative;
+  margin-top: 4rem;
+  &:nth-child(-n + 3) {
+    margin-top: 0;
+  }
+}
+
+@media screen and (max-width: 319px){
+  .main-container {
+      width: 24rem;
+  }
+  .box:nth-child(3) {
+      margin-top: 4rem;
+  }
+}

@@ -1,0 +1,1 @@
+export const DEFAULT_BUCKET_ID = '__DEFAULT_BUCKET_ID__';

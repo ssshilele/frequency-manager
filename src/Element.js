@@ -9,7 +9,9 @@ export default class Element {
 
   init(options) {
     if (!isObject(options)) {
-      throw new Error('FrequencyManager Error: Cannot initialize Element, expect options as Object.');
+      throw new Error(
+        'FrequencyManager Error: Cannot initialize Element, expect options as Object.'
+      );
     }
 
     let { frequency, showCount, delayInterval, duration, startTime } = options;
@@ -23,7 +25,14 @@ export default class Element {
     // key 是必需且唯一的
     this.key = options.key;
     // 元素信息
-    this.context = { frequency, combinative, showCount, delayInterval, duration, startTime };
+    this.context = {
+      frequency,
+      combinative,
+      showCount,
+      delayInterval,
+      duration,
+      startTime,
+    };
     // 存储数据
     this.storage = undefined;
     // 当前的显示状态
@@ -36,16 +45,29 @@ export default class Element {
     if (this.show && !this.fakeShow) return true; // 已展示，无需再次校验
 
     const currentTime = this.getCurrentTime();
-    const { frequency, combinative, delayInterval, showCount, startTime, duration } = this.context;
+    const {
+      frequency,
+      combinative,
+      delayInterval,
+      showCount,
+      startTime,
+      duration,
+    } = this.context;
 
     const storage = await this._getStorage();
     if (!isObject(storage)) {
-      throw new Error(`FrequencyManager Error: Cannot get storage of ${this.key}`);
+      throw new Error(
+        `FrequencyManager Error: Cannot get storage of ${this.key}`
+      );
     }
 
     const { count, times } = storage;
     const lastShowTime = this.getLastShowTimeSync(storage);
-    const durationStartTime = this._getStartTime(currentTime, startTime, duration);
+    const durationStartTime = this._getStartTime(
+      currentTime,
+      startTime,
+      duration
+    );
 
     let nextShow = false;
     if (combinative) {
@@ -55,7 +77,7 @@ export default class Element {
           const ts = (times || []).filter(t => t >= durationStartTime);
           nextShow = !ts.length || ts.length < showCount;
         } else {
-          nextShow = (+count || 0) < showCount
+          nextShow = (+count || 0) < showCount;
         }
       }
       if (nextShow && isFunction(frequency)) {
@@ -92,7 +114,11 @@ export default class Element {
     const currentTime = this.getCurrentTime();
     const { duration, startTime } = this.context;
     const { count: storageCount, times: storageTimes } = this.storage;
-    const durationStartTime = this._getStartTime(currentTime, startTime, duration);
+    const durationStartTime = this._getStartTime(
+      currentTime,
+      startTime,
+      duration
+    );
 
     this.show = false;
     this.fakeShow = !immediate;

@@ -15,7 +15,7 @@ function getElementImplement() {
     setStorage(key, storage) {
       return _this.setStorage(key, storage);
     }
-  }
+  };
 }
 
 function getBucketImplement() {
@@ -27,7 +27,7 @@ function getBucketImplement() {
     getCurrentTime() {
       return _this.getCurrentTime();
     }
-  }
+  };
 }
 
 // 抽象类
@@ -103,7 +103,9 @@ export default class FrequencyManager {
 
   _parseArg(options) {
     if (!isObject(options)) {
-      throw new Error('FrequencyManager Error: Cannot initialize FrequencyManager, expect options as Object.');
+      throw new Error(
+        'FrequencyManager Error: Cannot initialize FrequencyManager, expect options as Object.'
+      );
     }
 
     let buckets = [];
@@ -136,16 +138,15 @@ export default class FrequencyManager {
     }
     if (useBucket) {
       // 使用自定义分桶
-      buckets = Object.entries(restConfigs)
-        .map(([bucketId, config]) => {
-          const bucket = { bucketId };
-          if (Array.isArray(config)) {
-            bucket['elements'] = config;
-          } else {
-            Object.assign(bucket, config);
-          }
-          return bucket;
-        });
+      buckets = Object.entries(restConfigs).map(([bucketId, config]) => {
+        const bucket = { bucketId };
+        if (Array.isArray(config)) {
+          bucket['elements'] = config;
+        } else {
+          Object.assign(bucket, config);
+        }
+        return bucket;
+      });
     }
     if (defaultBucket.elements.length > 0) {
       buckets.unshift(defaultBucket);
@@ -156,15 +157,21 @@ export default class FrequencyManager {
   _parseCheckArg(arg) {
     if (arg !== undefined && !isObject(arg)) return;
 
-    if (isObject(arg) && !Array.isArray(arg) && ('bucketId' in arg) && !this.has(arg.bucketId)) {
-      throw new Error(`FrequencyManager Error: Cannot find Bucket by bucketId ${arg.bucketId}.`);
+    if (
+      isObject(arg) &&
+      !Array.isArray(arg) &&
+      'bucketId' in arg &&
+      !this.has(arg.bucketId)
+    ) {
+      throw new Error(
+        `FrequencyManager Error: Cannot find Bucket by bucketId ${arg.bucketId}.`
+      );
     }
 
     let checkList = [];
     if (arg === undefined) {
       // 无参数，默认巡检所有分桶
-      checkList = Object.keys(this.bucketMap)
-        .map(bucketId => ({ bucketId }));
+      checkList = Object.keys(this.bucketMap).map(bucketId => ({ bucketId }));
     } else if (Array.isArray(arg)) {
       // 巡检指定的一批分桶
       checkList = arg.filter(({ bucketId }) => this.has(bucketId));
@@ -178,7 +185,9 @@ export default class FrequencyManager {
   _parseHideArg(arg) {
     if (!isObject(arg)) return;
     if ('bucketId' in arg && !this.has(arg.bucketId)) {
-      throw new Error(`FrequencyManager Error: Cannot find Bucket by bucketId ${arg.bucketId}.`);
+      throw new Error(
+        `FrequencyManager Error: Cannot find Bucket by bucketId ${arg.bucketId}.`
+      );
     }
 
     return arg.bucketId || DEFAULT_BUCKET_ID;

@@ -82,9 +82,7 @@ export default class Bucket {
     if (checkKeys === undefined) return;
 
     if (checkKeys.length > 0) {
-      await Promise.all(
-        checkKeys.map(key => this.store[key].checkShow())
-      );
+      await Promise.all(checkKeys.map(key => this.store[key].checkShow()));
       return this.getCheckResult(checkKeys);
     }
   }
@@ -104,11 +102,17 @@ export default class Bucket {
       const lastCompeteShowTimes = await Promise.all(
         competeList.map(key => this.store[key].getLastShowTime())
       );
-      this.lastCompeteShowTime = Math.max.apply(null, lastCompeteShowTimes.map(t => t || 0));
+      this.lastCompeteShowTime = Math.max.apply(
+        null,
+        lastCompeteShowTimes.map(t => t || 0)
+      );
     }
 
     // 延时间隔尚未结束
-    if (minInterval > 0 && currentTime - this.lastCompeteShowTime < minInterval) {
+    if (
+      minInterval > 0 &&
+      currentTime - this.lastCompeteShowTime < minInterval
+    ) {
       return this.getCheckResult(competeList);
     }
 
@@ -126,7 +130,7 @@ export default class Bucket {
         }
         await _checkCompeteShow(index + 1);
       }
-    }
+    };
 
     await _checkCompeteShow();
     return this.getCheckResult(competeList);
@@ -159,7 +163,9 @@ export default class Bucket {
 
   _parseArg(options) {
     if (!isObject(options)) {
-      throw new Error('FrequencyManager Error: Cannot initialize Bucket, expect options as Object or Array.');
+      throw new Error(
+        'FrequencyManager Error: Cannot initialize Bucket, expect options as Object or Array.'
+      );
     }
 
     if (Array.isArray(options)) {
@@ -171,15 +177,12 @@ export default class Bucket {
       };
     }
 
-    const {
-      bucketId,
-      elements,
-      maxShowNum,
-      minInterval,
-    } = options;
+    const { bucketId, elements, maxShowNum, minInterval } = options;
 
     if (!Array.isArray(elements)) {
-      throw new Error('FrequencyManager Error: Cannot initialize Bucket, expect elements as Array.');
+      throw new Error(
+        'FrequencyManager Error: Cannot initialize Bucket, expect elements as Array.'
+      );
     }
 
     return {
@@ -193,8 +196,15 @@ export default class Bucket {
   _parseCheckArg(arg) {
     if (arg !== undefined && !isObject(arg)) return;
 
-    if (isObject(arg) && !Array.isArray(arg) && ('key' in arg) && !this.has(arg.key)) {
-      throw new Error(`FrequencyManager Error: Cannot find Element by key ${arg.key}.`);
+    if (
+      isObject(arg) &&
+      !Array.isArray(arg) &&
+      'key' in arg &&
+      !this.has(arg.key)
+    ) {
+      throw new Error(
+        `FrequencyManager Error: Cannot find Element by key ${arg.key}.`
+      );
     }
 
     const { normalList } = this.competeListMap;
@@ -220,7 +230,9 @@ export default class Bucket {
   _parseHideArg(arg) {
     if (!isObject(arg)) return;
     if ('key' in arg && !this.has(arg.key)) {
-      throw new Error(`FrequencyManager Error: Cannot find Element by key ${arg.key}.`);
+      throw new Error(
+        `FrequencyManager Error: Cannot find Element by key ${arg.key}.`
+      );
     }
 
     return arg.key;

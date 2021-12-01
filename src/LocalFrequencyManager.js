@@ -40,6 +40,9 @@ export default class LocalFrequencyManager extends FrequencyManager {
   }
 
   setLocalStorage(storageMap) {
-    return localStorage.setItem(this.frequencyShowKey, JSON.stringify(storageMap));
+    return localStorage.setItem(
+      this.frequencyShowKey,
+      JSON.stringify(storageMap)
+    );
   }
 }

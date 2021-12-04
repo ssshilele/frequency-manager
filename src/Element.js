@@ -14,7 +14,14 @@ export default class Element {
       );
     }
 
-    let { frequency, showCount, delayInterval, duration, startTime } = options;
+    let {
+      frequency,
+      showCount,
+      delayInterval,
+      duration,
+      startTime,
+      ...restOptions
+    } = options;
     showCount = nonNegaLize(showCount, 1); // 出现的次数，至少1次
     delayInterval = nonNegaLize(delayInterval, 300); // 距上次出现的最小时间间隔（单位：ms），默认300ms
     duration = nonNegaLize(duration); // 时间片段长度（单位：ms）
@@ -32,6 +39,7 @@ export default class Element {
       delayInterval,
       duration,
       startTime,
+      ...restOptions,
     };
     // 存储数据
     this.storage = undefined;

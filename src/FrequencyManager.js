@@ -174,7 +174,10 @@ export default class FrequencyManager {
       checkList = Object.keys(this.bucketMap).map(bucketId => ({ bucketId }));
     } else if (Array.isArray(arg)) {
       // 巡检指定的一批分桶
-      checkList = arg.filter(({ bucketId }) => this.has(bucketId));
+      checkList = deduplicate(
+        arg.map(a => ({ bucketId: DEFAULT_BUCKET_ID, ...a })),
+        'bucketId'
+      ).filter(({ bucketId }) => this.has(bucketId));
     } else {
       // 巡检指定的一个分桶或默认分桶
       checkList.push({ bucketId: DEFAULT_BUCKET_ID, ...arg });

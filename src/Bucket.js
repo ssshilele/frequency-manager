@@ -57,7 +57,10 @@ export default class Bucket {
   async checkShow(arg) {
     if (arg !== undefined && !isObject(arg)) return;
 
-    const { onlyCompete = false, excludeCompete = false } = arg || {};
+    const _arg = arg || {};
+    const onlyCompete = 'onlyCompete' in _arg ? !!_arg.onlyCompete : false;
+    const excludeCompete =
+      'excludeCompete' in _arg ? !!_arg.excludeCompete : false;
     const checkTasks = [];
     if (!onlyCompete) {
       checkTasks.push(this.checkNormalShow(arg));

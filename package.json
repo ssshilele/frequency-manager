@@ -6,7 +6,7 @@
   "scripts": {
     "build-prod": "rollup -c --environment ENV:production",
     "build-dev": "rollup -c -w --environment ENV:development",
-    "eslint": "eslint --fix src/**/*.js"
+    "eslint": "eslint src/**/*.js --fix"
   },
   "keywords": [
     "frequency",
@@ -29,9 +29,23 @@
     "core-js": "^3.19.2",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.1.2",
     "prettier": "^2.5.0",
     "rollup": "^2.60.1",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-terser": "^7.0.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "prettier --write",
+      "eslint --cache --fix",
+      "git add"
+    ]
   }
 }

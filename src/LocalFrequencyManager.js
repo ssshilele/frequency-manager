@@ -1,11 +1,12 @@
 import { isObject } from './utils';
 import FrequencyManager from './FrequencyManager';
+import { LOCAL_STORAGE_KEY } from './constants';
 
 // Local Storage Frequency Manager
 export default class LocalFrequencyManager extends FrequencyManager {
   constructor(options) {
     super(options);
-    this.frequencyShowKey = '__frequency_show_key__';
+    this.frequencyShowKey = LOCAL_STORAGE_KEY;
     // 统一保存 storage
     this.storageMap = undefined;
   }

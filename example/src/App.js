@@ -31,10 +31,10 @@ function App() {
       startTime: new Date().setHours(0, 0, 0, 0),
       frequency(storage) {
         const {
-          count = 0,  // 已展示的次数
+          count = 0, // 已展示的次数
           lastTime = 0, // 最近一次展示的时间
-          times = [],  // 最近一个周期内的历次展示时间
-          value,  // 自定义存储的值
+          times = [], // 最近一个周期内的历次展示时间
+          value, // 自定义存储的值
         } = storage || {};
         return count < 5 && Date.now() < new Date('2022/01/01').getTime();
       },
@@ -64,7 +64,8 @@ function App() {
         priority: 5,
         startTime: new Date().setHours(0, 0, 0, 0),
         showCount: 2,
-        frequency(storage) {   // frequency 返回结果与其它条件都成立时才展示
+        frequency(storage) {
+          // frequency 返回结果与其它条件都成立时才展示
           const { count = 0 } = storage || {};
           return count < 5 && Date.now() < new Date('2022/01/01').getTime();
         },
@@ -85,7 +86,9 @@ function App() {
           } else if (value && value.marked) {
             return Date.now() - lastTime >= 7 * unit;
           } else {
-            return count < 4 && Date.now() - lastTime >= intervals[count - 1] * unit;
+            return (
+              count < 4 && Date.now() - lastTime >= intervals[count - 1] * unit
+            );
           }
         },
       },
@@ -125,7 +128,7 @@ function App() {
     'demo-3': false,
   });
 
-  const handleRowTypeChange = (prop) => () => {
+  const handleRowTypeChange = prop => () => {
     setActiveTypes({
       ...activeTypes,
       [prop]: !activeTypes[prop],

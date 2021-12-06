@@ -1,12 +1,12 @@
 body {
-  background-color: #F2F6FC;
+  background-color: #f2f6fc;
 }
 
 .arrow {
   width: 1rem;
   height: 1rem;
-  border-top: 0.28rem solid #C0C4CC;
-  border-left: 0.28rem solid #C0C4CC;
+  border-top: 0.28rem solid #c0c4cc;
+  border-left: 0.28rem solid #c0c4cc;
   transform: rotate(135deg);
   border-radius: 0.3rem;
   margin-right: 1.2rem;
@@ -19,7 +19,7 @@ body {
   margin: 10rem auto;
   width: 37.5rem;
   padding: 3.2rem 1.6rem;
-  background-color: #FFF;
+  background-color: #fff;
   border-radius: 0.8rem;
   display: flex;
   flex-direction: column;
@@ -27,9 +27,9 @@ body {
 }
 
 .demo-row {
-  border-top: 1px solid #DCDFE6;
+  border-top: 1px solid #dcdfe6;
   &:last-child {
-    border-bottom: 1px solid #DCDFE6;
+    border-bottom: 1px solid #dcdfe6;
   }
   .row-header {
     height: 4.8rem;
@@ -40,7 +40,7 @@ body {
     font-weight: bold;
   }
   .row-body {
-    border-top: 1px solid #EBEEF5;
+    border-top: 1px solid #ebeef5;
     padding: 2.4rem 1.2rem;
   }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
-import './index.scss'
+import './index.scss';
 
-function Badge ({ show }) {
+function Badge({ show }) {
   return show ? <div className="badge" /> : null;
 }
 

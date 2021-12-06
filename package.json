@@ -1,7 +1,7 @@
 {
   "name": "frequency-manager",
   "version": "1.0.0",
-  "description": "Provide centralised manage service about Elements showing state base on frequency.",
+  "description": "Provide centralised frequency-shown management service about Badges, Tooltips, Dialogs, etc...",
   "main": "lib/index.js",
   "scripts": {
     "build-prod": "rollup -c --environment ENV:production",

@@ -1,10 +1,11 @@
 example/
+lib/index.js.map
 node_modules/
 .babelrc
-.commitlintrc.js
 .editorconfig
 .eslintrc.js
 .gitignore
 .npmignore
+.prettierrc.js
 package-lock.json
-webpack.config.js
+rollup.config.js

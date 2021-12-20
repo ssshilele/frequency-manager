@@ -1,8 +1,9 @@
-import { deduplicate, isObject, nonNegaLize } from './utils';
+import { deduplicate, withStorage, isObject, nonNegaLize } from './utils';
 import { DEFAULT_BUCKET_ID } from './constants';
+import Element from './Element';
 
 // 抽象类
-// 使用时需实现其中的 getCurrentTime、getElementClass 方法
+// 使用时需实现其中的 getCurrentTime, getStorage, setStorage 方法
 export default class Bucket {
   constructor(options) {
     this.init(options);
@@ -29,7 +30,7 @@ export default class Bucket {
     this.store = {};
 
     // 按是否参与竞争分类（存在 priority 属性，即代表该元素参与竞争）
-    const Element = this.getElementClass();
+    const ImplementElement = withStorage.call(this, Element);
     this.competeListMap = this.elements.reduce((res, el) => {
       const { key } = el;
       const prop = 'priority' in el ? 'competeList' : 'normalList';
@@ -40,7 +41,7 @@ export default class Bucket {
         res[prop].push(key);
       }
 
-      this.store[key] = new Element(el);
+      this.store[key] = new ImplementElement(el);
       this.store[key].priority = el.priority;
 
       return res;
@@ -151,6 +152,8 @@ export default class Bucket {
     }
     return this.getCheckResult([...normalList, ...competeList]);
   }
+
+  addElement() {}
 
   // 获取巡检结果
   getCheckResult(keyList) {

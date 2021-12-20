@@ -1,37 +1,9 @@
-import { deduplicate, isObject } from './utils';
+import { deduplicate, withStorage, isObject } from './utils';
 import { DEFAULT_BUCKET_ID } from './constants';
-import Element from './Element';
 import Bucket from './Bucket';
 
-function getElementImplement() {
-  const _this = this;
-  return class extends Element {
-    getCurrentTime() {
-      return _this.getCurrentTime();
-    }
-    getStorage(key, force) {
-      return _this.getStorage(key, force);
-    }
-    setStorage(key, storage) {
-      return _this.setStorage(key, storage);
-    }
-  };
-}
-
-function getBucketImplement() {
-  const _this = this;
-  return class extends Bucket {
-    getElementClass() {
-      return getElementImplement.call(_this);
-    }
-    getCurrentTime() {
-      return _this.getCurrentTime();
-    }
-  };
-}
-
 // 抽象类
-// 需实现其中的 resetTime、getStorage、setStorage 方法
+// 需实现其中的 resetTime, getStorage, setStorage 方法
 export default class FrequencyManager {
   constructor(options) {
     this.init(options);
@@ -42,9 +14,9 @@ export default class FrequencyManager {
     if (buckets === undefined) return;
 
     // 按 bucketId 分桶
-    const Bucket = getBucketImplement.call(this);
+    const ImplementBucket = withStorage.call(this, Bucket);
     this.bucketMap = buckets.reduce((res, option) => {
-      res[option.bucketId] = new Bucket(option);
+      res[option.bucketId] = new ImplementBucket(option);
       return res;
     }, {});
   }

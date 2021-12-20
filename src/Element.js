@@ -1,7 +1,7 @@
 import { isObject, isFunction, nonNegaLize } from './utils';
 
 // 抽象类
-// 使用时需实现其中的 getCurrentTime、getStorage、setStorage 方法
+// 使用时需实现其中的 getCurrentTime, getStorage, setStorage 方法
 export default class Element {
   constructor(options) {
     this.init(options);

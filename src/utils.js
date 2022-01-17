@@ -40,3 +40,7 @@ export function isFunction(obj) {
 export function nonNegaLize(v, d = 0) {
   return Math.max(+v || 0, d);
 }
+
+export function throwError(message) {
+  throw new Error(`FrequencyManager Error: ${message}`);
+}

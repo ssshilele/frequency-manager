@@ -13,21 +13,6 @@ export function deduplicate(array, key) {
   return arr;
 }
 
-export function withStorage(_class) {
-  const _this = this;
-  return class extends _class {
-    getCurrentTime() {
-      return _this.getCurrentTime();
-    }
-    getStorage(key, force) {
-      return _this.getStorage(key, force);
-    }
-    setStorage(key, storage) {
-      return _this.setStorage(key, storage);
-    }
-  };
-}
-
 export function isObject(obj) {
   const type = typeof obj;
   return obj !== null && (type === 'object' || type === 'function');
@@ -43,4 +28,19 @@ export function nonNegaLize(v, d = 0) {
 
 export function throwError(message) {
   throw new Error(`FrequencyManager Error: ${message}`);
+}
+
+export function withStorage(component) {
+  const _this = this;
+  return class extends component {
+    getCurrentTime() {
+      return _this.getCurrentTime();
+    }
+    getStorage(key, force) {
+      return _this.getStorage(key, force);
+    }
+    setStorage(key, storage) {
+      return _this.setStorage(key, storage);
+    }
+  };
 }

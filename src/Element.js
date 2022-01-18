@@ -41,7 +41,7 @@ function getContext(options) {
 }
 
 // 抽象类
-// 使用时需实现其中的 getCurrentTime、getStorage、setStorage 方法
+// 使用时需实现其中的 getCurrentTime, getStorage, setStorage 方法
 export default class Element {
   constructor(options) {
     this.init(options);
@@ -51,7 +51,7 @@ export default class Element {
     if (!isObject(options)) {
       throwError('Cannot init Element, expect an Object.');
     } else if (!('key' in options)) {
-      throwError(`Cannot find property 'key' on Element init.`);
+      throwError(`Cannot init Element, not find property 'key'.`);
     }
 
     // key 是必需且唯一的
@@ -67,11 +67,10 @@ export default class Element {
   }
 
   attachConfig(options) {
-    if (!isObject(options)) {
-      throwError('Cannot attach configs on Element, expect an Object.');
+    if (isObject(options)) {
+      this.context = getContext({ ...this.context, ...options });
+      return this.context;
     }
-
-    this.context = getContext({ ...this.context, ...options });
   }
 
   async checkShow() {
@@ -89,7 +88,9 @@ export default class Element {
 
     const storage = this.storage || (await this.getStorage(this.key));
     if (!isObject(storage)) {
-      throwError(`Cannot get storage of Element ${this.key}.`);
+      // 获取存储记录出错时，不作任何显示
+      this.show = false;
+      return;
     }
 
     const { count, times } = storage;

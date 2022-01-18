@@ -1,24 +1,92 @@
-import { deduplicate, withStorage, isObject } from './utils';
-import { DEFAULT_BUCKET_ID } from './constants';
 import Bucket from './Bucket';
+import { deduplicate, isObject, throwError, withStorage } from './utils';
+import { DEFAULT_BUCKET_ID } from './constants';
+
+function parseArg(options) {
+  let buckets = [];
+  let defaultBucket = {
+    bucketId: DEFAULT_BUCKET_ID,
+    elements: [],
+  };
+
+  if (Array.isArray(options)) {
+    defaultBucket.elements = options;
+    buckets.push(defaultBucket);
+    return buckets;
+  }
+
+  const { elements, maxShowNum, minInterval, ...restConfigs } = options;
+
+  if (Array.isArray(elements)) {
+    // 有默认分桶
+    Object.assign(defaultBucket, {
+      elements,
+      maxShowNum,
+      minInterval,
+    });
+  }
+  // 自定义分桶
+  buckets = Object.entries(restConfigs).map(([bucketId, config]) => {
+    if (Array.isArray(config)) {
+      return { elements: config, bucketId };
+    } else {
+      return { ...config, bucketId };
+    }
+  });
+  if (defaultBucket.elements.length > 0) {
+    buckets.unshift(defaultBucket);
+  }
+  return deduplicate(buckets, 'bucketId');
+}
+
+function parseCheckArg(arg, bucketMap) {
+  let checkList = [];
+  if (arg === undefined) {
+    // 无参数，默认巡检所有分桶
+    checkList = Object.keys(bucketMap).map(bucketId => ({ bucketId }));
+  } else if (Array.isArray(arg)) {
+    // 巡检指定的一批分桶
+    checkList = deduplicate(
+      arg.map(a => ({ bucketId: DEFAULT_BUCKET_ID, ...a })),
+      'bucketId'
+    );
+  } else {
+    // 巡检指定的一个分桶或默认分桶
+    checkList.push({ bucketId: DEFAULT_BUCKET_ID, ...arg });
+  }
+  return checkList;
+}
+
+function attachBucket(option) {
+  const { bucketId } = option;
+  if (this.has(bucketId)) {
+    this.bucketMap[bucketId].attachConfig(option);
+  } else {
+    this.bucketMap[bucketId] = new withStorage.call(this, Bucket)(option);
+  }
+}
+
+function updateConfig(options) {
+  const buckets = parseArg(options);
+  buckets.forEach(item => attachBucket.call(this, item));
+}
 
 // 抽象类
-// 需实现其中的 resetTime, getStorage, setStorage 方法
+// 使用时需实现其中的 resetTime, getStorage, setStorage 方法
 export default class FrequencyManager {
   constructor(options) {
     this.init(options);
   }
 
   init(options) {
-    const buckets = this._parseArg(options);
-    if (buckets === undefined) return;
+    if (!isObject(options)) {
+      throwError('Cannot init FrequencyManager, expect an Object.');
+    }
 
-    // 按 bucketId 分桶
-    const ImplementBucket = withStorage.call(this, Bucket);
-    this.bucketMap = buckets.reduce((res, option) => {
-      res[option.bucketId] = new ImplementBucket(option);
-      return res;
-    }, {});
+    // Bucket 映射表  按 bucketId 分桶
+    this.bucketMap = {};
+
+    updateConfig.call(this, options);
   }
 
   getCurrentTime() {
@@ -26,10 +94,15 @@ export default class FrequencyManager {
   }
 
   async checkShow(arg) {
-    const checkBuckets = this._parseCheckArg(arg);
-    if (checkBuckets === undefined) return;
+    // 未传参数，或 arg === undefined，则巡检所有分桶
+    // Object
+    if (arg !== undefined && !isObject(arg)) return;
 
-    this.resetTime();
+    const checkBuckets = parseCheckArg(arg, this.bucketMap).filter(
+      ({ bucketId }) => this.has(bucketId)
+    );
+
+    await this.resetTime();
 
     if (checkBuckets.length > 0) {
       const results = await Promise.all(
@@ -39,13 +112,13 @@ export default class FrequencyManager {
           )
         )
       );
-      return results.reduce((res, result, index) => {
-        if (result !== undefined) {
+      return results.reduce((res, item, index) => {
+        if (!item) {
           const bucketId = checkBuckets[index].bucketId;
           if (bucketId === DEFAULT_BUCKET_ID) {
-            Object.assign(res, result);
+            Object.assign(res, item);
           } else {
-            res[bucketId] = result;
+            res[bucketId] = item;
           }
         }
         return res;
@@ -54,13 +127,15 @@ export default class FrequencyManager {
   }
 
   async hide(arg) {
-    const bucketId = this._parseHideArg(arg);
-    if (bucketId === undefined) return;
+    if (!isObject(arg) || ('bucketId' in arg && !this.has(arg.bucketId)))
+      return;
 
-    this.resetTime();
+    const { bucketId = DEFAULT_BUCKET_ID } = arg;
+
+    await this.resetTime();
 
     const result = await this.bucketMap[bucketId].hide(arg);
-    if (result !== undefined) {
+    if (!result) {
       if (bucketId === DEFAULT_BUCKET_ID) {
         return result;
       } else {
@@ -70,101 +145,47 @@ export default class FrequencyManager {
   }
 
   has(bucketId) {
-    return this.bucketMap[bucketId] !== undefined;
+    return !!this.bucketMap[bucketId];
   }
 
-  _parseArg(options) {
-    if (!isObject(options)) {
-      throw new Error(
-        'FrequencyManager Error: Cannot initialize FrequencyManager, expect options as Object.'
-      );
+  attachConfig(options) {
+    if (isObject(options)) {
+      updateConfig.call(this, options);
+      return this.bucketMap;
     }
-
-    let buckets = [];
-    let defaultBucket = {
-      bucketId: DEFAULT_BUCKET_ID,
-      elements: [],
-    };
-
-    if (Array.isArray(options)) {
-      defaultBucket.elements = options;
-      buckets.push(defaultBucket);
-      return buckets;
-    }
-
-    const {
-      useBucket = false,
-      elements,
-      maxShowNum,
-      minInterval,
-      ...restConfigs
-    } = options;
-
-    if (Array.isArray(elements)) {
-      // 有默认分桶
-      Object.assign(defaultBucket, {
-        elements,
-        maxShowNum,
-        minInterval,
-      });
-    }
-    if (useBucket) {
-      // 使用自定义分桶
-      buckets = Object.entries(restConfigs).map(([bucketId, config]) => {
-        const bucket = { bucketId };
-        if (Array.isArray(config)) {
-          bucket['elements'] = config;
-        } else {
-          Object.assign(bucket, config);
-        }
-        return bucket;
-      });
-    }
-    if (defaultBucket.elements.length > 0) {
-      buckets.unshift(defaultBucket);
-    }
-    return deduplicate(buckets, 'bucketId');
   }
 
-  _parseCheckArg(arg) {
-    if (arg !== undefined && !isObject(arg)) return;
+  addBucket(option) {
+    if (isObject(option)) {
+      updateConfig.call(this, option);
 
-    if (
-      isObject(arg) &&
-      !Array.isArray(arg) &&
-      'bucketId' in arg &&
-      !this.has(arg.bucketId)
-    ) {
-      throw new Error(
-        `FrequencyManager Error: Cannot find Bucket by bucketId ${arg.bucketId}.`
-      );
+      const bucketId = Array.isArray(option)
+        ? DEFAULT_BUCKET_ID
+        : 'bucketId' in option
+        ? option.bucketId
+        : DEFAULT_BUCKET_ID;
+      if (this.has(bucketId)) {
+        return this.bucketMap[bucketId];
+      }
     }
-
-    let checkList = [];
-    if (arg === undefined) {
-      // 无参数，默认巡检所有分桶
-      checkList = Object.keys(this.bucketMap).map(bucketId => ({ bucketId }));
-    } else if (Array.isArray(arg)) {
-      // 巡检指定的一批分桶
-      checkList = deduplicate(
-        arg.map(a => ({ bucketId: DEFAULT_BUCKET_ID, ...a })),
-        'bucketId'
-      ).filter(({ bucketId }) => this.has(bucketId));
-    } else {
-      // 巡检指定的一个分桶或默认分桶
-      checkList.push({ bucketId: DEFAULT_BUCKET_ID, ...arg });
-    }
-    return deduplicate(checkList, 'bucketId');
   }
 
-  _parseHideArg(arg) {
-    if (!isObject(arg)) return;
-    if ('bucketId' in arg && !this.has(arg.bucketId)) {
-      throw new Error(
-        `FrequencyManager Error: Cannot find Bucket by bucketId ${arg.bucketId}.`
-      );
+  addElement(option, bucketId = DEFAULT_BUCKET_ID) {
+    if (this.has(bucketId)) {
+      return this.bucketMap[bucketId].add(option);
     }
+  }
 
-    return arg.bucketId || DEFAULT_BUCKET_ID;
+  removeBucket(bucketId) {
+    if (this.has(bucketId)) {
+      delete this.bucketMap[bucketId];
+      return true;
+    }
+  }
+
+  removeElement(key, bucketId = DEFAULT_BUCKET_ID) {
+    if (this.has(bucketId) && this.bucketMap[bucketId].has(key)) {
+      return this.bucketMap[bucketId].remove(key);
+    }
   }
 }
